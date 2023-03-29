@@ -1,5 +1,6 @@
-from flask import Flask
+from flask import Flask,jsonify
 from V1.model import Opcion,db
+
 
 app=Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI']='mysql+pymysql://titulatec_soa:Hola.123@localhost/TitulaTEC_SOA'
@@ -31,10 +32,17 @@ def consultarSolicitud(nc):
 @app.route('/opciones',methods=['GET'])
 def consultaOpciones():
     #retornar un listado de las opciones disponibles para titulación
-    opcion=Opcion()
-    print(opcion.consultaGeneral())
-    return "Listado de opciones"
-
+    try:
+        opcion=Opcion()
+        return jsonify(opcion.consultaGeneral())
+    except:
+        respuesta = {"estatus": "Error", "mensaje": "Recurso no disponible, contacta al administrador del servicio"}
+        return respuesta
+#Manipulaciones de errores
+@app.errorhandler(404)
+def errorinterno(e):
+    respuesta={"estatus":"Error","mensaje":"Recurso no disponible, contacta al administrador del servicio"}
+    return respuesta
 
 if __name__=='__main__':
     db.init_app(app)

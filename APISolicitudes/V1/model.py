@@ -11,4 +11,24 @@ class Opcion(db.Model):
 
     def consultaGeneral(self):#select * from opciones
         lista=self.query.all()
-        return lista
+        respuesta={"estatus":"","mensaje":""}
+        try:
+            if len(lista)>0:
+                respuesta["estatus"]="OK"
+                respuesta["mensaje"]="Listado de opciones de titulacion."
+                respuesta["opciones"]=[o.to_json() for o in lista]
+            else:
+                respuesta["estatus"] = "OK"
+                respuesta["mensaje"] = "No hay opciones registradas"
+                respuesta["opciones"]=[]
+        except:
+            respuesta["estatus"] = "Error"
+            respuesta["mensaje"] = "Problemas de al ejecutar la consulta de opciones"
+        return respuesta
+
+    def to_json(self):
+        o_json={"idOpcion":self.idOpcion,
+                "nombre":self.nombre,
+                "descripcion":self.descripcion
+        }
+        return o_json
