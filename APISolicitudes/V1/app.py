@@ -1,5 +1,5 @@
-from flask import Flask,jsonify
-from V1.model import Opcion,db
+from flask import Flask,jsonify,request
+from V1.model import Opcion,db,Solicitud
 
 
 app=Flask(__name__)
@@ -8,36 +8,50 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS']=False
 
 @app.route('/',methods=['GET'])
 def init():
-    return "Escuchando el Servicio REST de Solicitudes"
+    return {"mensaje":"Escuchando el Servicio REST de Solicitudes"}
 
-@app.route('/Solicitudes')
+#Rutta para el listado general de solicitudes
+@app.route('/Solicitudes/v1',methods=['GET'])
 def listadoSolicitudes():
-    respuesta={"estatus":"200","mensaje":"Listado de solicitudes"}
-    return respuesta
+    solicitud=Solicitud()
+    return solicitud.consultaGeneral()
 
-@app.route('/Solicitudes/evidencias')
-def listadoEvidencias():
-    respuesta={"estatus":"200","mensaje":"Listado de evidencias de las solicitudes"}
-    return respuesta
-@app.route('/Solicitudes/<int:id>')
+#Ruta para el listado indvidual de solicitudes en base al id de la solicitud
+@app.route('/Solicitudes/v1/<int:id>',methods=['GET'])
+def listarSolicitud(id):
+    solicitud=Solicitud()
+    return solicitud.consultaIndividual(id)
+
+#Ruta para agregar una solicitud
+@app.route('/Solicitudes/v1',methods=['POST'])
+def agregarSolicitud():
+    solicitud = Solicitud()
+    data=request.get_json()
+    return solicitud.agregar(data)
+
+#Ruta para editar los datos de una solicitud
+@app.route('/Solicitudes/v1',methods=['PUT'])
+def editarSolicitud():
+    solicitud=Solicitud()
+    data=request.get_json()
+    return solicitud.editar(data)
+
+#Ruta para eliminar una solicitud
+@app.route('/Solicitudes/v1/<int:id>',methods=['DELETE'])
 def eliminarSolicitud(id):
-    respuesta={"estatus":"200","mensaje":"Eliminando la solicitud con id:"+str(id)}
-    return respuesta
+    solicitud=Solicitud()
+    return solicitud.eliminar(id)
 
-@app.route('/Solicitudes/<string:nc>')
-def consultarSolicitud(nc):
-    respuesta={"estatus":"200","mensaje":"Buscando la solicitud que registro el alumno con NC:"+nc}
-    return respuesta
-
+#Ruta para el listado de las opciones disponibles para titulación
 @app.route('/opciones',methods=['GET'])
 def consultaOpciones():
-    #retornar un listado de las opciones disponibles para titulación
     try:
         opcion=Opcion()
         return jsonify(opcion.consultaGeneral())
     except:
         respuesta = {"estatus": "Error", "mensaje": "Recurso no disponible, contacta al administrador del servicio"}
         return respuesta
+
 #Manipulaciones de errores
 @app.errorhandler(404)
 def errorinterno(e):
