@@ -30,8 +30,7 @@ class Opcion(db.Model):
     def to_json(self):
         o_json={"idOpcion":self.idOpcion,
                 "nombre":self.nombre,
-                "descripcion":self.descripcion
-        }
+                "descripcion":self.descripcion}
         return o_json
 
 class Solicitud(db.Model):
@@ -94,6 +93,26 @@ class Solicitud(db.Model):
         else:
             respuesta["estatus"] = "OK"
             respuesta["mensaje"] = "No se encuentra registrada la solicitud con id:" + str(id)
+        return respuesta
+
+    def consultaPorAlumno(self, idAlumno):
+        respuesta = {"estatus": "", "mensaje": ""}
+        data = {"id": idAlumno}
+        try:
+            rs = db.session.execute("select * from vSolicitudes where idAlumno=:id", data);
+            respuesta['estatus'] = "OK"
+            lista = []
+            for row in rs:
+                lista.append(self.to_json(row))
+
+            if len(lista) > 0:
+                respuesta['mensaje'] = "Listado de Solicitudes"
+                respuesta["solicitudes"] = lista
+            else:
+                respuesta['mensaje'] = "El alumno no tiene solicitudes registradas"
+        except:
+            respuesta['estatus'] = "Error"
+            respuesta['mensaje'] = "Error al ejecutar la consulta de solicitudes"
         return respuesta
 
     def to_json(self,fila):

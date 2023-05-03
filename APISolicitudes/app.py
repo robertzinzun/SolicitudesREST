@@ -1,10 +1,11 @@
 from flask import Flask,jsonify,request
 from V1.model import Opcion,db,Solicitud
 from V1.SolicitudesBPV1 import solicitudBP
-
+from V2.SolicitudesBPV2 import solicitudBPV2
 
 app=Flask(__name__)
-app.register_blueprint(solicitudBP)
+app.register_blueprint(solicitudBP)#Cargar la funcionalidad incluida en el componente solicitudBP
+app.register_blueprint(solicitudBPV2)#Cargar la funcionalidad incluida en el componente solicitudBPV2
 
 app.config['SQLALCHEMY_DATABASE_URI']='mysql+pymysql://titulatec_soa:Hola.123@localhost/TitulaTEC_SOA'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS']=False
