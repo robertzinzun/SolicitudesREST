@@ -1,5 +1,6 @@
 from pymongo import MongoClient
 from datetime import date,timedelta
+from bson import ObjectId
 
 class Conexion():
     def __init__(self):
@@ -44,4 +45,45 @@ class Conexion():
             resp["estatus"] = "Error"
             resp["mensaje"] = "El alumno que intenta registrar la solicitud no existe o no es egresado"
 
+        return resp
+
+    def consultaGeneralSolicitudes(self):
+        resp={"estatus":"","mensaje":""}
+        res=self.bd.vSolicitudes2.find({})
+        lista=[]
+        for s in res:
+            self.to_json_solicitud(s)
+            lista.append(s)
+        if len(lista)>0:
+            resp["estatus"]="OK"
+            resp["mensaje"]="listado de Solicitudes"
+            resp["solicitudes"]=lista
+        else:
+            resp["estatus"] = "OK"
+            resp["mensaje"] = "No hay Solicitudes registrado"
+        return resp
+
+    def to_json_solicitud(self,solicitud):
+        solicitud["administrativo"]={"id":solicitud.get("administrativo")[0].get("id"),
+                                     "nombre":solicitud.get("administrativo")[0].get("nombre")[0]}
+        solicitud["alumno"]={"id":solicitud.get("alumno")[0].get("id"),
+                             "NC":solicitud.get("alumno")[0].get("NC")[0],
+                             "nombre":solicitud.get("alumno")[0].get("nombre")[0]}
+        solicitud["carrera"]={"id":solicitud.get("carrera")[0].get("id")[0],
+                              "nombre":solicitud.get("carrera")[0].get("nombre")[0]}
+        solicitud["opcion"]={"id":solicitud.get("opcion")[0].get("id"),
+                                     "nombre":solicitud.get("opcion")[0].get("nombre")[0]}
+        solicitud["id"]=str(solicitud["id"])
+
+    def consultarSolicitud(self,id):
+        resp = {"estatus": "", "mensaje": ""}
+        res = self.bd.vSolicitudes2.find_one({"id":ObjectId(id)})
+        if res:
+            self.to_json_solicitud(res)
+            resp["estatus"] = "OK"
+            resp["mensaje"] = "listado de la Solicitud"
+            resp["solicitud"] = res
+        else:
+            resp["estatus"] = "OK"
+            resp["mensaje"] = "No hay solicitudes registradas con ese id"
         return resp
