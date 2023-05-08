@@ -87,3 +87,30 @@ class Conexion():
             resp["estatus"] = "OK"
             resp["mensaje"] = "No hay solicitudes registradas con ese id"
         return resp
+
+    def eliminarSolicitud(self,id):
+        resp={"estatus":"","mensaje":""}
+        res=self.bd.solicitudes.delete_one({"_id":ObjectId(id),"estatus":{"$in":["Captura","Rechazada"]}})
+        if res.deleted_count>0:
+            resp["estatus"]="OK"
+            resp["mensaje"]="La solicitud se le elimino con exito"
+        else:
+            resp["estatus"]="Error"
+            resp["mensaje"]="La solicitud no existen o no se encuentra en Captura/Rechazada"
+        return resp
+
+    def consultarSolicitudesPorAlumno(self,idAlumno):
+        resp={"estatus":"","mensaje":""}
+        res=self.bd.vSolicitudes2.find({"alumno.id":idAlumno})
+        lista=[]
+        for s in res:
+            self.to_json_solicitud(s)
+            lista.append(s)
+        if len(lista)>0:
+            resp["estatus"]="OK"
+            resp["mensaje"]="Listado de solicitudes del alumno"
+            resp["solicitudes"]=lista
+        else:
+            resp["estatus"]="OK"
+            resp["mensaje"]="El alumno no tiene solicitudes registradas"
+        return resp

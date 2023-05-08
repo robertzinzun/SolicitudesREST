@@ -18,3 +18,13 @@ def consultaSolicitudes():
 def consultarSolicitud(id):
     cn=Conexion()
     return cn.consultarSolicitud(id)
+
+@solicitudBPV2.route('/Solicitudes/v2/<string:id>',methods=['DELETE'])
+def eliminarSolicitud(id):
+    cn=Conexion()
+    return cn.eliminarSolicitud(id)
+
+@solicitudBPV2.route('/Solicitudes/v2/alumno/<int:idAlumno>',methods=['GET'])
+def consultarSolicitudesAlumno(idAlumno):
+    cn=Conexion()
+    return cn.consultarSolicitudesPorAlumno(idAlumno)
